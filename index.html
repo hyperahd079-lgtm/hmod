@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport"
-      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 
 <title>HAND MOTION</title>
 
@@ -18,21 +18,19 @@ html,body{
     width:100%;
     height:100%;
     overflow:hidden;
-    background:#05070d;
+    background:#03050b;
     color:#fff;
-    font-family:
-        system-ui,
-        -apple-system,
-        "Segoe UI",
-        Tahoma,
-        sans-serif;
+    font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;
 }
 
 body{
     position:relative;
 }
 
-/* الكاميرا */
+/* =========================
+   الكاميرا الخلفية
+========================= */
+
 #video{
     position:fixed;
     inset:0;
@@ -40,32 +38,43 @@ body{
     height:100%;
     object-fit:cover;
     z-index:0;
-    transform:scaleX(-1);
-    background:#05070d;
+
+    /* مهم: بدون انعكاس */
+    transform:none;
+
+    background:#03050b;
 }
 
-/* طبقة الإضاءة */
+/* =========================
+   إضاءة الشاشة
+========================= */
+
 #shade{
     position:fixed;
     inset:0;
     z-index:1;
+    pointer-events:none;
+
     background:
         radial-gradient(
             circle at 50% 45%,
-            transparent 0 18%,
-            rgba(0,0,0,.08) 45%,
-            rgba(0,0,0,.62) 100%
+            transparent 0 15%,
+            rgba(0,0,0,.10) 42%,
+            rgba(0,0,0,.72) 100%
         ),
         linear-gradient(
             180deg,
-            rgba(3,5,12,.62),
+            rgba(0,0,0,.62),
             transparent 30%,
-            transparent 68%,
-            rgba(3,5,12,.78)
+            transparent 70%,
+            rgba(0,0,0,.78)
         );
 }
 
-/* Canvas */
+/* =========================
+   Canvas
+========================= */
+
 #canvas{
     position:fixed;
     inset:0;
@@ -75,15 +84,17 @@ body{
     pointer-events:none;
 }
 
-/* الواجهة */
+/* =========================
+   UI
+========================= */
+
 .ui{
     position:fixed;
     inset:0;
-    z-index:4;
+    z-index:5;
     pointer-events:none;
 }
 
-/* العلوي */
 .top{
     position:absolute;
     top:18px;
@@ -96,20 +107,20 @@ body{
 }
 
 .brand{
-    padding:9px 14px;
+    padding:9px 15px;
 
-    border:1px solid rgba(255,255,255,.16);
+    border:1px solid rgba(255,255,255,.14);
     border-radius:999px;
 
-    background:rgba(10,13,24,.48);
+    background:rgba(8,11,21,.48);
 
-    backdrop-filter:blur(14px);
+    backdrop-filter:blur(18px);
 
-    font-weight:700;
-    letter-spacing:.4px;
+    font-weight:800;
+    letter-spacing:1px;
 
     box-shadow:
-        0 8px 30px rgba(0,0,0,.35);
+        0 10px 35px rgba(0,0,0,.35);
 }
 
 .status{
@@ -117,17 +128,18 @@ body{
     gap:8px;
     align-items:center;
 
-    padding:8px 12px;
+    padding:8px 13px;
 
     border-radius:999px;
 
-    background:rgba(9,13,24,.67);
-    border:1px solid rgba(255,255,255,.1);
+    background:rgba(8,11,21,.68);
 
-    backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,.10);
+
+    backdrop-filter:blur(18px);
 
     font-size:12px;
-    color:#cbd2e7;
+    color:#d5dcef;
 }
 
 .dot{
@@ -138,32 +150,33 @@ body{
 
     background:#ffb020;
 
-    box-shadow:
-        0 0 12px #ffb020;
+    box-shadow:0 0 14px #ffb020;
+
+    transition:.3s;
 }
 
 .dot.ok{
-    background:#45f2a1;
-
-    box-shadow:
-        0 0 14px #45f2a1;
+    background:#55ffb0;
+    box-shadow:0 0 18px #55ffb0;
 }
 
-/* الشاشة الوسطية */
+/* =========================
+   الشاشة الأولى
+========================= */
+
 .center{
     position:absolute;
 
     left:50%;
     top:50%;
 
-    transform:
-        translate(-50%,-50%);
+    transform:translate(-50%,-50%);
 
     text-align:center;
 
-    width:min(90%,520px);
+    width:min(90%,540px);
 
-    transition:.35s;
+    transition:.5s;
 
     opacity:1;
 }
@@ -172,23 +185,23 @@ body{
     opacity:0;
 
     transform:
-        translate(-50%,-46%)
-        scale(.97);
+        translate(-50%,-47%)
+        scale(.94);
+
+    pointer-events:none;
 }
 
 h1{
-    font-size:
-        clamp(34px,9vw,72px);
+    margin:0 0 10px;
 
-    margin:
-        0 0 8px;
+    font-size:clamp(38px,10vw,76px);
 
-    font-weight:800;
+    font-weight:900;
 
-    letter-spacing:-2px;
+    letter-spacing:-3px;
 
     text-shadow:
-        0 8px 40px rgba(0,0,0,.8);
+        0 8px 45px rgba(0,0,0,.9);
 }
 
 .sub{
@@ -196,71 +209,69 @@ h1{
 
     color:#d8deef;
 
-    line-height:1.8;
+    line-height:1.9;
 
     text-shadow:
-        0 2px 15px rgba(0,0,0,.8);
+        0 3px 20px rgba(0,0,0,.9);
 }
 
-/* زر التشغيل */
 #start{
     pointer-events:auto;
 
-    margin-top:22px;
+    margin-top:24px;
 
     border:0;
 
-    color:#071018;
+    color:#070b12;
 
     background:#fff;
 
-    padding:14px 24px;
+    padding:14px 25px;
 
     border-radius:999px;
 
     font-size:16px;
 
-    font-weight:800;
+    font-weight:900;
 
     cursor:pointer;
 
     box-shadow:
-        0 10px 35px rgba(0,0,0,.5);
+        0 12px 40px rgba(0,0,0,.55);
 
     transition:.2s;
 }
 
 #start:active{
-    transform:scale(.96);
+    transform:scale(.94);
 }
 
-/* معلومات اليد */
+/* =========================
+   لوحة المعلومات
+========================= */
+
 .panel{
     position:absolute;
 
-    bottom:72px;
+    bottom:70px;
     right:16px;
 
     display:none;
 
-    width:min(
-        270px,
-        calc(100% - 32px)
-    );
+    width:min(285px,calc(100% - 32px));
 
-    padding:14px;
+    padding:14px 16px;
 
     border-radius:20px;
 
-    background:rgba(8,11,21,.72);
+    background:rgba(7,10,20,.67);
 
-    border:
-        1px solid rgba(255,255,255,.09);
+    border:1px solid rgba(255,255,255,.09);
 
-    backdrop-filter:blur(18px);
+    backdrop-filter:blur(20px);
 
     box-shadow:
-        0 15px 45px rgba(0,0,0,.5);
+        0 18px 55px rgba(0,0,0,.5);
 }
 
 .panel.show{
@@ -285,22 +296,22 @@ h1{
     color:#fff;
 }
 
-/* التلميح */
+/* =========================
+   التلميح
+========================= */
+
 .tip{
     position:absolute;
 
-    bottom:24px;
+    bottom:22px;
     left:50%;
 
-    transform:
-        translateX(-50%);
+    transform:translateX(-50%);
 
     width:max-content;
+    max-width:calc(100% - 28px);
 
-    max-width:
-        calc(100% - 28px);
-
-    padding:10px 15px;
+    padding:10px 16px;
 
     border:
         1px solid rgba(255,255,255,.09);
@@ -308,9 +319,9 @@ h1{
     border-radius:999px;
 
     background:
-        rgba(8,11,21,.67);
+        rgba(7,10,20,.68);
 
-    backdrop-filter:blur(15px);
+    backdrop-filter:blur(16px);
 
     font-size:12px;
 
@@ -319,20 +330,22 @@ h1{
     text-align:center;
 }
 
-/* شاشة الخطأ */
+/* =========================
+   الخطأ
+========================= */
+
 .cameraError{
     display:none;
 
     position:fixed;
 
-    z-index:8;
+    z-index:10;
 
     inset:0;
 
     place-items:center;
 
-    background:
-        rgba(5,7,13,.94);
+    background:rgba(3,5,11,.96);
 
     padding:24px;
 
@@ -346,22 +359,21 @@ h1{
 .card{
     max-width:420px;
 
-    padding:25px;
+    padding:26px;
 
     border-radius:25px;
 
-    background:#0c1020;
+    background:#0b1020;
 
     border:
         1px solid rgba(255,255,255,.09);
 
     box-shadow:
-        0 20px 70px rgba(0,0,0,.7);
+        0 25px 80px rgba(0,0,0,.75);
 }
 
 .card h2{
-    margin:
-        0 0 10px;
+    margin:0 0 10px;
 }
 
 .card p{
@@ -375,11 +387,11 @@ h1{
 #retry{
     border:0;
 
-    padding:12px 20px;
+    padding:12px 22px;
 
     border-radius:999px;
 
-    font-weight:800;
+    font-weight:900;
 
     cursor:pointer;
 }
@@ -388,7 +400,6 @@ h1{
 
 <body>
 
-<!-- الكاميرا -->
 <video
     id="video"
     autoplay
@@ -400,8 +411,6 @@ h1{
 
 <canvas id="canvas"></canvas>
 
-
-<!-- الواجهة -->
 <div class="ui">
 
     <div class="top">
@@ -412,10 +421,7 @@ h1{
 
         <div class="status">
 
-            <span
-                id="dot"
-                class="dot">
-            </span>
+            <span id="dot" class="dot"></span>
 
             <span id="status">
                 بانتظار الكاميرا
@@ -426,76 +432,43 @@ h1{
     </div>
 
 
-    <div
-        id="center"
-        class="center">
+    <div id="center" class="center">
 
-        <h1>
-            حرّك يدك
-        </h1>
+        <h1>حرّك يدك</h1>
 
         <div class="sub">
 
-            خلّي إيدك قدام
+            خلي إيدك قدام
             <b>الكاميرا الخلفية</b>
 
             <br>
 
-            والموقع راح يتفاعل ويا حركتك ✋
+            والموقع راح يتفاعل ويا كل حركة ✋
 
         </div>
 
-
         <button id="start">
-
             تشغيل الكاميرا الخلفية
-
         </button>
 
     </div>
 
 
-    <!-- لوحة المعلومات -->
-    <div
-        id="panel"
-        class="panel">
+    <div id="panel" class="panel">
 
         <div class="row">
-
-            <span>
-                الحالة
-            </span>
-
-            <b id="handState">
-                لا توجد يد
-            </b>
-
+            <span>الحالة</span>
+            <b id="handState">لا توجد يد</b>
         </div>
 
-
         <div class="row">
-
-            <span>
-                الإشارة
-            </span>
-
-            <b id="gesture">
-                —
-            </b>
-
+            <span>الحركة</span>
+            <b id="gesture">—</b>
         </div>
 
-
         <div class="row">
-
-            <span>
-                الموقع
-            </span>
-
-            <b id="pos">
-                —
-            </b>
-
+            <span>الموقع</span>
+            <b id="pos">—</b>
         </div>
 
     </div>
@@ -503,39 +476,31 @@ h1{
 
     <div class="tip">
 
-        ✋ افتح كفك
+        🖐️ كف
         &nbsp; • &nbsp;
-        ☝️ ارفع إصبع
+        ✌️ سلام
         &nbsp; • &nbsp;
-        👋 حرّك يدك
+        🫶 قلب
+        &nbsp; • &nbsp;
+        ☝️ إصبع
 
     </div>
 
 </div>
 
 
-<!-- شاشة خطأ الكاميرا -->
-<div
-    id="error"
-    class="cameraError">
+<div id="error" class="cameraError">
 
     <div class="card">
 
-        <h2>
-            ما قدرنا نفتح الكاميرا
-        </h2>
+        <h2>ما قدرنا نفتح الكاميرا</h2>
 
         <p id="errorText">
-
             تأكد من إعطاء الموقع صلاحية الكاميرا.
-            على بعض المتصفحات يجب فتح الموقع عبر HTTPS.
-
         </p>
 
         <button id="retry">
-
             إعادة المحاولة
-
         </button>
 
     </div>
@@ -543,24 +508,15 @@ h1{
 </div>
 
 
-<!--
-    MediaPipe
-    مكتبة التعرف على اليد
--->
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 
 
 <script>
 
-/* =========================================
+/* =========================================================
    العناصر
-========================================= */
+========================================================= */
 
 const video =
     document.getElementById("video");
@@ -602,49 +558,43 @@ const errorText =
     document.getElementById("errorText");
 
 
-/* =========================================
+/* =========================================================
    المتغيرات
-========================================= */
+========================================================= */
 
 let stream = null;
-
 let hands = null;
-
 let running = false;
 
 let particles = [];
+let bursts = [];
+let rings = [];
+let hearts = [];
+let trails = [];
 
-let hand = {
-
-    x:.5,
-
-    y:.5,
-
-    found:false,
-
-    gesture:"—",
-
-    points:[]
-
-};
-
-let lastTime =
-    performance.now();
+let previousHand = null;
+let lastGesture = "";
+let gestureTimer = 0;
+let lastTime = performance.now();
 
 
-/* =========================================
-   Canvas
-========================================= */
+/* =========================================================
+   حجم الشاشة
+========================================================= */
 
 function resize(){
 
+    const dpr =
+        Math.min(
+            window.devicePixelRatio || 1,
+            2
+        );
+
     canvas.width =
-        innerWidth *
-        devicePixelRatio;
+        innerWidth * dpr;
 
     canvas.height =
-        innerHeight *
-        devicePixelRatio;
+        innerHeight * dpr;
 
     canvas.style.width =
         innerWidth + "px";
@@ -653,73 +603,23 @@ function resize(){
         innerHeight + "px";
 
     ctx.setTransform(
-        devicePixelRatio,
+        dpr,
         0,
         0,
-        devicePixelRatio,
+        dpr,
         0,
         0
     );
 }
 
-addEventListener(
-    "resize",
-    resize
-);
+addEventListener("resize",resize);
 
 resize();
 
 
-/* =========================================
-   الجسيمات
-========================================= */
-
-function makeParticles(){
-
-    particles = [];
-
-    for(
-        let i=0;
-        i<85;
-        i++
-    ){
-
-        particles.push({
-
-            x:
-                Math.random() *
-                innerWidth,
-
-            y:
-                Math.random() *
-                innerHeight,
-
-            vx:
-                (Math.random()-.5)
-                * .25,
-
-            vy:
-                (Math.random()-.5)
-                * .25,
-
-            r:
-                Math.random()*2.2+.5,
-
-            a:
-                Math.random()*.65+.15
-
-        });
-
-    }
-
-}
-
-makeParticles();
-
-
-/* =========================================
-   حساب المسافة
-========================================= */
+/* =========================================================
+   أدوات
+========================================================= */
 
 function distance(a,b){
 
@@ -731,307 +631,698 @@ function distance(a,b){
 }
 
 
-/* =========================================
-   معرفة حركة اليد
-========================================= */
+function screenPoint(p){
+
+    /*
+       مهم:
+       لا نعكس X لأن الكاميرا الآن
+       تعرض الصورة بشكل طبيعي.
+    */
+
+    return {
+        x:p.x * innerWidth,
+        y:p.y * innerHeight
+    };
+
+}
+
+
+/* =========================================================
+   الجسيمات
+========================================================= */
+
+function createParticles(){
+
+    particles=[];
+
+    for(let i=0;i<130;i++){
+
+        particles.push({
+
+            x:Math.random()*innerWidth,
+
+            y:Math.random()*innerHeight,
+
+            vx:(Math.random()-.5)*.3,
+
+            vy:(Math.random()-.5)*.3,
+
+            r:Math.random()*2+0.4,
+
+            a:Math.random()*.65+.1,
+
+            life:1
+
+        });
+
+    }
+
+}
+
+createParticles();
+
+
+/* =========================================================
+   انفجار
+========================================================= */
+
+function burst(x,y,count=45,power=6){
+
+    for(let i=0;i<count;i++){
+
+        const angle =
+            Math.random() *
+            Math.PI*2;
+
+        const speed =
+            Math.random()*power
+            + power*.2;
+
+        bursts.push({
+
+            x,
+            y,
+
+            vx:
+                Math.cos(angle)*speed,
+
+            vy:
+                Math.sin(angle)*speed,
+
+            size:
+                Math.random()*3+1,
+
+            life:1,
+
+            decay:
+                Math.random()*.018+.012
+
+        });
+
+    }
+
+    rings.push({
+
+        x,
+        y,
+
+        r:5,
+
+        max:120,
+
+        life:1
+
+    });
+
+}
+
+
+/* =========================================================
+   قلب
+========================================================= */
+
+function spawnHeart(x,y,size=45){
+
+    hearts.push({
+
+        x,
+        y,
+
+        size,
+
+        life:1,
+
+        vy:-.5,
+
+        rotation:
+            (Math.random()-.5)*.4
+
+    });
+
+}
+
+
+/* =========================================================
+   تحديد الأصابع
+========================================================= */
+
+function fingerInfo(lm){
+
+    const index =
+        lm[8].y < lm[6].y;
+
+    const middle =
+        lm[12].y < lm[10].y;
+
+    const ring =
+        lm[16].y < lm[14].y;
+
+    const pinky =
+        lm[20].y < lm[18].y;
+
+    const pinch =
+        distance(lm[4],lm[8]) < .075;
+
+    return {
+        index,
+        middle,
+        ring,
+        pinky,
+        pinch
+    };
+
+}
+
+
+/* =========================================================
+   التعرف على الحركة
+========================================================= */
 
 function classify(lm){
 
-    const tips = [
-        8,
-        12,
-        16,
-        20
-    ];
-
-    const pips = [
-        6,
-        10,
-        14,
-        18
-    ];
-
-    let extended = 0;
+    const f =
+        fingerInfo(lm);
 
 
-    for(
-        let i=0;
-        i<4;
-        i++
+    /*
+       🫶 قلب بإصبعين
+
+       السبابة والوسطى مرفوعين
+       وقريبين جداً من بعضهما
+    */
+
+    const twoFingerHeart =
+        f.index &&
+        f.middle &&
+        !f.ring &&
+        !f.pinky &&
+        distance(lm[8],lm[12]) < .105;
+
+
+    if(twoFingerHeart){
+
+        return "🫶 قلب";
+
+    }
+
+
+    /*
+       🤏 ضم الأصابع
+    */
+
+    if(f.pinch){
+
+        return "🤏 ضم";
+
+    }
+
+
+    /*
+       🖐️ كف مفتوح
+    */
+
+    if(
+        f.index &&
+        f.middle &&
+        f.ring &&
+        f.pinky
     ){
-
-        if(
-            lm[tips[i]].y <
-            lm[pips[i]].y
-        ){
-
-            extended++;
-
-        }
-
-    }
-
-
-    /* 🤏 */
-    const pinch =
-        distance(
-            lm[4],
-            lm[8]
-        ) < .075;
-
-
-    if(pinch){
-
-        return "🤏 تكبير";
-
-    }
-
-
-    /* 🖐️ */
-    if(extended === 4){
 
         return "🖐️ كف مفتوح";
 
     }
 
 
-    /* ☝️ */
+    /*
+       ✌️ سلام
+    */
+
     if(
-        extended === 1 &&
-        lm[8].y <
-        lm[6].y
+        f.index &&
+        f.middle &&
+        !f.ring &&
+        !f.pinky
     ){
 
-        return "☝️ إصبع مرفوع";
+        return "✌️ سلام";
 
     }
 
 
-    /* ✌️ */
+    /*
+       ☝️ سبابة
+    */
+
     if(
-        extended === 2 &&
-        lm[8].y <
-        lm[6].y &&
-        lm[12].y <
-        lm[10].y
+        f.index &&
+        !f.middle &&
+        !f.ring &&
+        !f.pinky
     ){
 
-        return "✌️ إشارة سلام";
+        return "☝️ سبابة";
 
     }
 
 
-    /* ✊ */
-    if(extended === 0){
+    /*
+       👍 إعجاب
+    */
+
+    const thumbUp =
+        lm[4].y <
+        lm[3].y &&
+        !f.index &&
+        !f.middle &&
+        !f.ring &&
+        !f.pinky;
+
+
+    if(thumbUp){
+
+        return "👍 إعجاب";
+
+    }
+
+
+    /*
+       ✊ قبضة
+    */
+
+    if(
+        !f.index &&
+        !f.middle &&
+        !f.ring &&
+        !f.pinky
+    ){
 
         return "✊ قبضة";
 
     }
 
 
-    return "✋ حركة يد";
+    return "👋 حركة";
 
 }
 
 
-/* =========================================
-   نتائج التعرف
-========================================= */
+/* =========================================================
+   تأثيرات الحركة
+========================================================= */
 
-function onResults(results){
+function gestureEffect(gesture,lm){
 
-    ctx.clearRect(
-        0,
-        0,
-        innerWidth,
-        innerHeight
-    );
+    const now =
+        performance.now();
 
+    if(now < gestureTimer)
+        return;
 
-    if(
-        results.multiHandLandmarks &&
-        results.multiHandLandmarks.length
-    ){
+    /*
+       لا نكرر التأثير القوي
+       كل فريم
+    */
 
-        const lm =
-            results.multiHandLandmarks[0];
+    gestureTimer =
+        now + 260;
 
 
-        /*
-            نعكس X حتى تتطابق
-            اليد مع الكاميرا
-        */
-
-        hand.x =
-            1 - lm[9].x;
-
-        hand.y =
-            lm[9].y;
-
-        hand.found =
-            true;
-
-        hand.gesture =
-            classify(lm);
-
-        hand.points =
-            lm;
+    const center =
+        screenPoint(lm[9]);
 
 
-        statusEl.textContent =
-            "تم اكتشاف اليد";
+    if(gesture.includes("كف")){
 
-        dot.classList.add("ok");
-
-
-        handState.textContent =
-            "موجودة ✋";
-
-        gestureEl.textContent =
-            hand.gesture;
-
-
-        posEl.textContent =
-            Math.round(
-                hand.x*100
-            ) +
-            "% ، " +
-            Math.round(
-                hand.y*100
-            ) +
-            "%";
-
-
-        panel.classList.add(
-            "show"
+        burst(
+            center.x,
+            center.y,
+            75,
+            7
         );
 
+        rings.push({
+            x:center.x,
+            y:center.y,
+            r:10,
+            max:220,
+            life:1
+        });
 
-        /*
-            نقاط اليد
-        */
-
-        for(
-            const p of lm
-        ){
-
-            const x =
-                (1-p.x) *
-                innerWidth;
-
-            const y =
-                p.y *
-                innerHeight;
+    }
 
 
-            ctx.beginPath();
+    else if(gesture.includes("قلب")){
 
-            ctx.arc(
-                x,
-                y,
-                3,
-                0,
-                Math.PI*2
+        spawnHeart(
+            center.x,
+            center.y,
+            65
+        );
+
+        for(let i=0;i<8;i++){
+
+            spawnHeart(
+                center.x+(Math.random()-.5)*100,
+                center.y+(Math.random()-.5)*100,
+                18+Math.random()*18
             );
-
-            ctx.fillStyle =
-                "rgba(255,255,255,.75)";
-
-            ctx.fill();
-
-        }
-
-
-        /*
-            خطوط اليد
-        */
-
-        const connections = [
-
-            [0,1],
-            [1,2],
-            [2,3],
-            [3,4],
-
-            [0,5],
-            [5,6],
-            [6,7],
-            [7,8],
-
-            [5,9],
-            [9,10],
-            [10,11],
-            [11,12],
-
-            [9,13],
-            [13,14],
-            [14,15],
-            [15,16],
-
-            [13,17],
-            [17,18],
-            [18,19],
-            [19,20],
-
-            [0,17]
-
-        ];
-
-
-        for(
-            const c of connections
-        ){
-
-            const a =
-                lm[c[0]];
-
-            const b =
-                lm[c[1]];
-
-
-            ctx.beginPath();
-
-            ctx.moveTo(
-                (1-a.x) *
-                innerWidth,
-
-                a.y *
-                innerHeight
-            );
-
-            ctx.lineTo(
-                (1-b.x) *
-                innerWidth,
-
-                b.y *
-                innerHeight
-            );
-
-
-            ctx.strokeStyle =
-                "rgba(255,255,255,.20)";
-
-            ctx.lineWidth = 1.2;
-
-            ctx.stroke();
 
         }
 
     }
 
-    else{
 
-        hand.found =
-            false;
+    else if(gesture.includes("سلام")){
 
+        burst(
+            screenPoint(lm[8]).x,
+            screenPoint(lm[8]).y,
+            22,
+            4
+        );
+
+        burst(
+            screenPoint(lm[12]).x,
+            screenPoint(lm[12]).y,
+            22,
+            4
+        );
+
+    }
+
+
+    else if(gesture.includes("سبابة")){
+
+        burst(
+            screenPoint(lm[8]).x,
+            screenPoint(lm[8]).y,
+            16,
+            3
+        );
+
+    }
+
+
+    else if(gesture.includes("ضم")){
+
+        rings.push({
+
+            x:center.x,
+            y:center.y,
+
+            r:12,
+
+            max:150,
+
+            life:1
+
+        });
+
+    }
+
+
+    else if(gesture.includes("قبضة")){
+
+        burst(
+            center.x,
+            center.y,
+            50,
+            5
+        );
+
+    }
+
+
+    else if(gesture.includes("إعجاب")){
+
+        burst(
+            screenPoint(lm[4]).x,
+            screenPoint(lm[4]).y,
+            28,
+            4
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   رسم القلب
+========================================================= */
+
+function drawHeart(x,y,size,rotation,alpha){
+
+    ctx.save();
+
+    ctx.translate(x,y);
+
+    ctx.rotate(rotation);
+
+    ctx.scale(
+        size/50,
+        size/50
+    );
+
+    ctx.beginPath();
+
+    ctx.moveTo(0,18);
+
+    ctx.bezierCurveTo(
+        -42,-8,
+        -24,-32,
+        0,-15
+    );
+
+    ctx.bezierCurveTo(
+        24,-32,
+        42,-8,
+        0,18
+    );
+
+    ctx.closePath();
+
+    ctx.fillStyle =
+        `rgba(255,255,255,${alpha})`;
+
+    ctx.shadowBlur=25;
+
+    ctx.shadowColor =
+        "rgba(255,255,255,.9)";
+
+    ctx.fill();
+
+    ctx.restore();
+
+}
+
+
+/* =========================================================
+   رسم الشعاع من السبابة
+========================================================= */
+
+function drawFingerBeam(lm){
+
+    const tip =
+        screenPoint(lm[8]);
+
+    const joint =
+        screenPoint(lm[6]);
+
+    const dx =
+        tip.x-joint.x;
+
+    const dy =
+        tip.y-joint.y;
+
+    const len =
+        Math.hypot(dx,dy) || 1;
+
+    const nx = dx/len;
+    const ny = dy/len;
+
+    const endX =
+        tip.x + nx*220;
+
+    const endY =
+        tip.y + ny*220;
+
+    const gradient =
+        ctx.createLinearGradient(
+            tip.x,
+            tip.y,
+            endX,
+            endY
+        );
+
+    gradient.addColorStop(
+        0,
+        "rgba(255,255,255,.85)"
+    );
+
+    gradient.addColorStop(
+        .35,
+        "rgba(150,210,255,.35)"
+    );
+
+    gradient.addColorStop(
+        1,
+        "rgba(150,210,255,0)"
+    );
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        tip.x,
+        tip.y
+    );
+
+    ctx.lineTo(
+        endX,
+        endY
+    );
+
+    ctx.strokeStyle =
+        gradient;
+
+    ctx.lineWidth=2;
+
+    ctx.shadowBlur=18;
+
+    ctx.shadowColor =
+        "rgba(160,220,255,.8)";
+
+    ctx.stroke();
+
+    ctx.shadowBlur=0;
+
+}
+
+
+/* =========================================================
+   رسم يد + خطوط
+========================================================= */
+
+function drawHand(lm){
+
+    const connections=[
+
+        [0,1],[1,2],[2,3],[3,4],
+
+        [0,5],[5,6],[6,7],[7,8],
+
+        [5,9],[9,10],[10,11],[11,12],
+
+        [9,13],[13,14],[14,15],[15,16],
+
+        [13,17],[17,18],[18,19],[19,20],
+
+        [0,17]
+
+    ];
+
+
+    /*
+       الخطوط
+    */
+
+    for(const c of connections){
+
+        const a =
+            screenPoint(lm[c[0]]);
+
+        const b =
+            screenPoint(lm[c[1]]);
+
+        ctx.beginPath();
+
+        ctx.moveTo(a.x,a.y);
+
+        ctx.lineTo(b.x,b.y);
+
+        ctx.strokeStyle =
+            "rgba(255,255,255,.25)";
+
+        ctx.lineWidth=1.3;
+
+        ctx.shadowBlur=8;
+
+        ctx.shadowColor =
+            "rgba(180,220,255,.4)";
+
+        ctx.stroke();
+
+    }
+
+
+    /*
+       النقاط
+    */
+
+    for(let i=0;i<lm.length;i++){
+
+        const p =
+            screenPoint(lm[i]);
+
+        const important =
+            [4,8,12,16,20].includes(i);
+
+        ctx.beginPath();
+
+        ctx.arc(
+            p.x,
+            p.y,
+            important ? 4 : 2.2,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fillStyle =
+            important
+            ? "rgba(255,255,255,.95)"
+            : "rgba(220,235,255,.65)";
+
+        ctx.shadowBlur =
+            important ? 15 : 5;
+
+        ctx.shadowColor =
+            "rgba(180,220,255,.8)";
+
+        ctx.fill();
+
+    }
+
+    ctx.shadowBlur=0;
+
+}
+
+
+/* =========================================================
+   النتائج
+========================================================= */
+
+let hand = {
+    found:false,
+    x:.5,
+    y:.5,
+    gesture:"—",
+    points:null
+};
+
+
+function onResults(results){
+
+    if(
+        !results.multiHandLandmarks ||
+        !results.multiHandLandmarks.length
+    ){
+
+        hand.found=false;
 
         statusEl.textContent =
             "وجّه يدك للكاميرا";
 
-        dot.classList.remove(
-            "ok"
-        );
-
+        dot.classList.remove("ok");
 
         handState.textContent =
             "لا توجد يد";
@@ -1042,18 +1333,156 @@ function onResults(results){
         posEl.textContent =
             "—";
 
-        panel.classList.remove(
-            "show"
-        );
+        panel.classList.remove("show");
+
+        previousHand=null;
+
+        return;
 
     }
+
+
+    const lm =
+        results.multiHandLandmarks[0];
+
+
+    hand.found=true;
+
+    hand.x =
+        lm[9].x;
+
+    hand.y =
+        lm[9].y;
+
+    hand.points=lm;
+
+    hand.gesture =
+        classify(lm);
+
+
+    statusEl.textContent =
+        "تم اكتشاف اليد";
+
+    dot.classList.add("ok");
+
+    handState.textContent =
+        "موجودة ✋";
+
+    gestureEl.textContent =
+        hand.gesture;
+
+    posEl.textContent =
+        Math.round(hand.x*100) +
+        "% ، " +
+        Math.round(hand.y*100) +
+        "%";
+
+    panel.classList.add("show");
+
+
+    /*
+       تأثير عند تغيير الحركة
+    */
+
+    if(
+        hand.gesture !== lastGesture
+    ){
+
+        gestureEffect(
+            hand.gesture,
+            lm
+        );
+
+        lastGesture =
+            hand.gesture;
+
+    }
+
+
+    /*
+       رسم اليد
+    */
+
+    drawHand(lm);
+
+
+    /*
+       شعاع السبابة
+    */
+
+    if(
+        hand.gesture.includes("سبابة")
+    ){
+
+        drawFingerBeam(lm);
+
+    }
+
+
+    /*
+       حركة اليد
+       تولد مساراً ضوئياً
+    */
+
+    if(previousHand){
+
+        const old =
+            previousHand;
+
+        const current =
+            screenPoint(lm[9]);
+
+        const movement =
+            Math.hypot(
+                current.x-old.x,
+                current.y-old.y
+            );
+
+
+        if(movement > 3){
+
+            trails.push({
+
+                x:current.x,
+
+                y:current.y,
+
+                life:1,
+
+                size:
+                    Math.min(
+                        20,
+                        movement*1.5
+                    )
+
+            });
+
+
+            if(movement > 14){
+
+                burst(
+                    current.x,
+                    current.y,
+                    4,
+                    2.5
+                );
+
+            }
+
+        }
+
+    }
+
+
+    previousHand =
+        screenPoint(lm[9]);
 
 }
 
 
-/* =========================================
+/* =========================================================
    Animation
-========================================= */
+========================================================= */
 
 function animate(now){
 
@@ -1063,7 +1492,7 @@ function animate(now){
             now-lastTime
         );
 
-    lastTime = now;
+    lastTime=now;
 
 
     ctx.clearRect(
@@ -1079,35 +1508,17 @@ function animate(now){
         ? hand.x*innerWidth
         : innerWidth/2;
 
-
     const targetY =
         hand.found
         ? hand.y*innerHeight
         : innerHeight/2;
 
 
-    const power =
-        hand.found
-        ?
-        (
-            hand.gesture.includes(
-                "كف"
-            )
-            ? 1.7
-            : 1
-        )
-        :
-        .25;
+    /* =====================
+       الجسيمات الخلفية
+    ===================== */
 
-
-    /*
-        تحريك الجسيمات
-        باتجاه اليد
-    */
-
-    for(
-        const p of particles
-    ){
+    for(const p of particles){
 
         const dx =
             targetX-p.x;
@@ -1116,76 +1527,46 @@ function animate(now){
             targetY-p.y;
 
         const d =
-            Math.hypot(
-                dx,
-                dy
-            ) || 1;
+            Math.hypot(dx,dy)||1;
 
 
         if(
             hand.found &&
-            d < 330
+            d<350
         ){
 
             const force =
-                (330-d)/330
-                *.9
-                *power;
-
+                ((350-d)/350)*.8;
 
             p.vx +=
-                dx/d *
-                force;
-
+                dx/d*force;
 
             p.vy +=
-                dy/d *
-                force;
+                dy/d*force;
 
         }
 
 
-        p.vx *= .985;
-
-        p.vy *= .985;
-
+        p.vx*=.985;
+        p.vy*=.985;
 
         p.x +=
-            p.vx *
-            dt *
-            .06;
+            p.vx*dt*.06;
 
         p.y +=
-            p.vy *
-            dt *
-            .06;
+            p.vy*dt*.06;
 
 
-        if(
-            p.x < -20
-        )
-            p.x =
-                innerWidth+20;
+        if(p.x<-20)
+            p.x=innerWidth+20;
 
-
-        if(
-            p.x >
-            innerWidth+20
-        )
+        if(p.x>innerWidth+20)
             p.x=-20;
 
+        if(p.y<-20)
+            p.y=innerHeight+20;
 
-        if(
-            p.y < -20
-        )
-            p.y =
-                innerHeight+20;
-
-
-        if(
-            p.y >
-            innerHeight+20
-        )
+        if(p.y>innerHeight+20)
             p.y=-20;
 
 
@@ -1199,31 +1580,23 @@ function animate(now){
             Math.PI*2
         );
 
-
         ctx.fillStyle =
-            `rgba(
-                255,
-                255,
-                255,
-                ${p.a}
-            )`;
+            `rgba(220,235,255,${p.a})`;
 
         ctx.fill();
 
     }
 
 
-    /*
-        الهالة حول اليد
-    */
+    /* =====================
+       هالة اليد
+    ===================== */
 
     if(hand.found){
 
         const pulse =
-            12 +
-            Math.sin(
-                now*.006
-            )*4;
+            85 +
+            Math.sin(now*.006)*12;
 
 
         const g =
@@ -1233,97 +1606,234 @@ function animate(now){
                 0,
                 targetX,
                 targetY,
-                85+pulse
+                pulse
             );
-
 
         g.addColorStop(
             0,
-            "rgba(255,255,255,.22)"
+            "rgba(255,255,255,.18)"
         );
 
         g.addColorStop(
-            .25,
-            "rgba(120,190,255,.12)"
+            .3,
+            "rgba(150,210,255,.10)"
         );
 
         g.addColorStop(
             1,
-            "rgba(120,190,255,0)"
+            "rgba(150,210,255,0)"
         );
 
 
-        ctx.fillStyle = g;
+        ctx.fillStyle=g;
 
         ctx.beginPath();
 
         ctx.arc(
             targetX,
             targetY,
-            90+pulse,
+            pulse,
             0,
             Math.PI*2
         );
 
         ctx.fill();
 
-
-        /*
-            🤏 تأثير التكبير
-        */
-
-        if(
-            hand.gesture.includes(
-                "تكبير"
-            )
-        ){
-
-            ctx.beginPath();
-
-            ctx.arc(
-                targetX,
-                targetY,
-                30 +
-                Math.sin(
-                    now*.01
-                )*8,
-                0,
-                Math.PI*2
-            );
+    }
 
 
-            ctx.strokeStyle =
-                "rgba(255,255,255,.75)";
+    /* =====================
+       الانفجارات
+    ===================== */
 
-            ctx.lineWidth = 2;
+    for(let i=bursts.length-1;i>=0;i--){
 
-            ctx.stroke();
+        const p =
+            bursts[i];
+
+        p.x +=
+            p.vx*dt*.06;
+
+        p.y +=
+            p.vy*dt*.06;
+
+        p.vx*=.97;
+        p.vy*=.97;
+
+        p.life -=
+            p.decay*dt;
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+            p.x,
+            p.y,
+            p.size,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fillStyle =
+            `rgba(255,255,255,${Math.max(0,p.life)})`;
+
+        ctx.shadowBlur=14;
+
+        ctx.shadowColor =
+            "rgba(160,220,255,.9)";
+
+        ctx.fill();
+
+        if(p.life<=0){
+
+            bursts.splice(i,1);
 
         }
 
     }
 
 
-    requestAnimationFrame(
-        animate
-    );
+    /* =====================
+       الدوائر
+    ===================== */
+
+    for(let i=rings.length-1;i>=0;i--){
+
+        const r =
+            rings[i];
+
+        r.r +=
+            dt*.22;
+
+        r.life -=
+            dt*.0018;
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+            r.x,
+            r.y,
+            r.r,
+            0,
+            Math.PI*2
+        );
+
+        ctx.strokeStyle =
+            `rgba(190,225,255,${Math.max(0,r.life)})`;
+
+        ctx.lineWidth=2;
+
+        ctx.shadowBlur=20;
+
+        ctx.shadowColor =
+            "rgba(180,225,255,.8)";
+
+        ctx.stroke();
+
+
+        if(
+            r.r>r.max ||
+            r.life<=0
+        ){
+
+            rings.splice(i,1);
+
+        }
+
+    }
+
+
+    /* =====================
+       المسارات
+    ===================== */
+
+    for(let i=trails.length-1;i>=0;i--){
+
+        const t =
+            trails[i];
+
+        t.life -=
+            dt*.003;
+
+        t.size*=.98;
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+            t.x,
+            t.y,
+            Math.max(1,t.size),
+            0,
+            Math.PI*2
+        );
+
+        ctx.fillStyle =
+            `rgba(190,225,255,${Math.max(0,t.life*.5)})`;
+
+        ctx.fill();
+
+
+        if(t.life<=0){
+
+            trails.splice(i,1);
+
+        }
+
+    }
+
+
+    /* =====================
+       القلوب
+    ===================== */
+
+    for(let i=hearts.length-1;i>=0;i--){
+
+        const h =
+            hearts[i];
+
+        h.y +=
+            h.vy*dt;
+
+        h.life -=
+            dt*.0009;
+
+        h.size*=.999;
+
+
+        drawHeart(
+            h.x,
+            h.y,
+            h.size,
+            h.rotation,
+            Math.max(0,h.life)
+        );
+
+
+        if(h.life<=0){
+
+            hearts.splice(i,1);
+
+        }
+
+    }
+
+
+    requestAnimationFrame(animate);
 
 }
 
-requestAnimationFrame(
-    animate
-);
+requestAnimationFrame(animate);
 
 
-/* =========================================
+/* =========================================================
    تشغيل الكاميرا الخلفية
-========================================= */
+========================================================= */
 
 async function startCamera(){
 
-    error.classList.remove(
-        "show"
-    );
+    error.classList.remove("show");
 
 
     try{
@@ -1340,34 +1850,26 @@ async function startCamera(){
         }
 
 
-        /*
-            إذا كانت هناك كاميرا
-            سابقة نوقفها
-        */
-
         if(stream){
 
             stream
                 .getTracks()
                 .forEach(
-                    track =>
-                    track.stop()
+                    track=>track.stop()
                 );
 
         }
 
 
         /*
-            الكاميرا الخلفية
+           الكاميرا الخلفية
+           بدون mirror
         */
 
         stream =
-            await navigator
-            .mediaDevices
-            .getUserMedia({
+            await navigator.mediaDevices.getUserMedia({
 
                 video:{
-
                     facingMode:{
                         ideal:"environment"
                     },
@@ -1378,8 +1880,12 @@ async function startCamera(){
 
                     height:{
                         ideal:720
-                    }
+                    },
 
+                    frameRate:{
+                        ideal:30,
+                        max:30
+                    }
                 },
 
                 audio:false
@@ -1394,29 +1900,27 @@ async function startCamera(){
         await video.play();
 
 
-        center.classList.add(
-            "hidden"
-        );
+        /*
+           نتأكد أن الفيديو غير معكوس
+        */
 
-
-        start.style.display =
+        video.style.transform =
             "none";
 
 
-        running = true;
+        center.classList.add("hidden");
+
+        start.style.display="none";
+
+        running=true;
 
 
         statusEl.textContent =
             "جاري تشغيل الكاميرا";
 
 
-        dot.classList.remove(
-            "ok"
-        );
-
-
         /*
-            تشغيل MediaPipe
+           MediaPipe
         */
 
         hands =
@@ -1448,33 +1952,43 @@ async function startCamera(){
 
 
         /*
-            إرسال صور الكاميرا
-            إلى نظام التعرف
+           معالجة الفيديو
         */
 
-        const process =
-            async () => {
+        async function process(){
 
-                if(!running)
-                    return;
+            if(!running)
+                return;
 
 
-                if(
-                    video.readyState >= 2
-                ){
+            if(
+                video.readyState>=2
+            ){
+
+                try{
 
                     await hands.send({
                         image:video
                     });
 
                 }
+                catch(e){
+
+                    console.warn(
+                        "Hand tracking:",
+                        e
+                    );
+
+                }
+
+            }
 
 
-                requestAnimationFrame(
-                    process
-                );
+            requestAnimationFrame(
+                process
+            );
 
-            };
+        }
 
 
         process();
@@ -1487,12 +2001,10 @@ async function startCamera(){
 
 
         errorText.textContent =
-            "تأكد من السماح للموقع باستخدام الكاميرا، وافتح الموقع عبر HTTPS. سيحاول الموقع استخدام الكاميرا الخلفية تلقائياً.";
+            "تأكد من إعطاء الموقع صلاحية الكاميرا. إذا لم تعمل، افتح الموقع عبر HTTPS وجرب مرة ثانية. الموقع يحاول استخدام الكاميرا الخلفية تلقائياً.";
 
 
-        error.classList.add(
-            "show"
-        );
+        error.classList.add("show");
 
 
         statusEl.textContent =
@@ -1503,9 +2015,9 @@ async function startCamera(){
 }
 
 
-/* =========================================
+/* =========================================================
    الأزرار
-========================================= */
+========================================================= */
 
 start.addEventListener(
     "click",
@@ -1514,11 +2026,11 @@ start.addEventListener(
 
 
 document
-    .getElementById("retry")
-    .addEventListener(
-        "click",
-        startCamera
-    );
+.getElementById("retry")
+.addEventListener(
+    "click",
+    startCamera
+);
 
 </script>
 
