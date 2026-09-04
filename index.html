@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+
+<title>HAND MOTION</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#05070d;
+    color:#fff;
+    font-family:
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        Tahoma,
+        sans-serif;
+}
+
+body{
+    position:relative;
+}
+
+/* الكاميرا */
+#video{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    z-index:0;
+    transform:scaleX(-1);
+    background:#05070d;
+}
+
+/* طبقة الإضاءة */
+#shade{
+    position:fixed;
+    inset:0;
+    z-index:1;
+    background:
+        radial-gradient(
+            circle at 50% 45%,
+            transparent 0 18%,
+            rgba(0,0,0,.08) 45%,
+            rgba(0,0,0,.62) 100%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(3,5,12,.62),
+            transparent 30%,
+            transparent 68%,
+            rgba(3,5,12,.78)
+        );
+}
+
+/* Canvas */
+#canvas{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:2;
+    pointer-events:none;
+}
+
+/* الواجهة */
+.ui{
+    position:fixed;
+    inset:0;
+    z-index:4;
+    pointer-events:none;
+}
+
+/* العلوي */
+.top{
+    position:absolute;
+    top:18px;
+    left:16px;
+    right:16px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.brand{
+    padding:9px 14px;
+
+    border:1px solid rgba(255,255,255,.16);
+    border-radius:999px;
+
+    background:rgba(10,13,24,.48);
+
+    backdrop-filter:blur(14px);
+
+    font-weight:700;
+    letter-spacing:.4px;
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,.35);
+}
+
+.status{
+    display:flex;
+    gap:8px;
+    align-items:center;
+
+    padding:8px 12px;
+
+    border-radius:999px;
+
+    background:rgba(9,13,24,.67);
+    border:1px solid rgba(255,255,255,.1);
+
+    backdrop-filter:blur(14px);
+
+    font-size:12px;
+    color:#cbd2e7;
+}
+
+.dot{
+    width:8px;
+    height:8px;
+
+    border-radius:50%;
+
+    background:#ffb020;
+
+    box-shadow:
+        0 0 12px #ffb020;
+}
+
+.dot.ok{
+    background:#45f2a1;
+
+    box-shadow:
+        0 0 14px #45f2a1;
+}
+
+/* الشاشة الوسطية */
+.center{
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    transform:
+        translate(-50%,-50%);
+
+    text-align:center;
+
+    width:min(90%,520px);
+
+    transition:.35s;
+
+    opacity:1;
+}
+
+.center.hidden{
+    opacity:0;
+
+    transform:
+        translate(-50%,-46%)
+        scale(.97);
+}
+
+h1{
+    font-size:
+        clamp(34px,9vw,72px);
+
+    margin:
+        0 0 8px;
+
+    font-weight:800;
+
+    letter-spacing:-2px;
+
+    text-shadow:
+        0 8px 40px rgba(0,0,0,.8);
+}
+
+.sub{
+    font-size:15px;
+
+    color:#d8deef;
+
+    line-height:1.8;
+
+    text-shadow:
+        0 2px 15px rgba(0,0,0,.8);
+}
+
+/* زر التشغيل */
+#start{
+    pointer-events:auto;
+
+    margin-top:22px;
+
+    border:0;
+
+    color:#071018;
+
+    background:#fff;
+
+    padding:14px 24px;
+
+    border-radius:999px;
+
+    font-size:16px;
+
+    font-weight:800;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 10px 35px rgba(0,0,0,.5);
+
+    transition:.2s;
+}
+
+#start:active{
+    transform:scale(.96);
+}
+
+/* معلومات اليد */
+.panel{
+    position:absolute;
+
+    bottom:72px;
+    right:16px;
+
+    display:none;
+
+    width:min(
+        270px,
+        calc(100% - 32px)
+    );
+
+    padding:14px;
+
+    border-radius:20px;
+
+    background:rgba(8,11,21,.72);
+
+    border:
+        1px solid rgba(255,255,255,.09);
+
+    backdrop-filter:blur(18px);
+
+    box-shadow:
+        0 15px 45px rgba(0,0,0,.5);
+}
+
+.panel.show{
+    display:block;
+}
+
+.row{
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:10px;
+
+    padding:6px 0;
+
+    color:#bfc7dc;
+
+    font-size:12px;
+}
+
+.row b{
+    color:#fff;
+}
+
+/* التلميح */
+.tip{
+    position:absolute;
+
+    bottom:24px;
+    left:50%;
+
+    transform:
+        translateX(-50%);
+
+    width:max-content;
+
+    max-width:
+        calc(100% - 28px);
+
+    padding:10px 15px;
+
+    border:
+        1px solid rgba(255,255,255,.09);
+
+    border-radius:999px;
+
+    background:
+        rgba(8,11,21,.67);
+
+    backdrop-filter:blur(15px);
+
+    font-size:12px;
+
+    color:#d4daea;
+
+    text-align:center;
+}
+
+/* شاشة الخطأ */
+.cameraError{
+    display:none;
+
+    position:fixed;
+
+    z-index:8;
+
+    inset:0;
+
+    place-items:center;
+
+    background:
+        rgba(5,7,13,.94);
+
+    padding:24px;
+
+    text-align:center;
+}
+
+.cameraError.show{
+    display:grid;
+}
+
+.card{
+    max-width:420px;
+
+    padding:25px;
+
+    border-radius:25px;
+
+    background:#0c1020;
+
+    border:
+        1px solid rgba(255,255,255,.09);
+
+    box-shadow:
+        0 20px 70px rgba(0,0,0,.7);
+}
+
+.card h2{
+    margin:
+        0 0 10px;
+}
+
+.card p{
+    color:#b8c0d5;
+
+    line-height:1.8;
+
+    font-size:14px;
+}
+
+#retry{
+    border:0;
+
+    padding:12px 20px;
+
+    border-radius:999px;
+
+    font-weight:800;
+
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<!-- الكاميرا -->
+<video
+    id="video"
+    autoplay
+    playsinline
+    muted>
+</video>
+
+<div id="shade"></div>
+
+<canvas id="canvas"></canvas>
+
+
+<!-- الواجهة -->
+<div class="ui">
+
+    <div class="top">
+
+        <div class="brand">
+            HAND MOTION
+        </div>
+
+        <div class="status">
+
+            <span
+                id="dot"
+                class="dot">
+            </span>
+
+            <span id="status">
+                بانتظار الكاميرا
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div
+        id="center"
+        class="center">
+
+        <h1>
+            حرّك يدك
+        </h1>
+
+        <div class="sub">
+
+            خلّي إيدك قدام
+            <b>الكاميرا الخلفية</b>
+
+            <br>
+
+            والموقع راح يتفاعل ويا حركتك ✋
+
+        </div>
+
+
+        <button id="start">
+
+            تشغيل الكاميرا الخلفية
+
+        </button>
+
+    </div>
+
+
+    <!-- لوحة المعلومات -->
+    <div
+        id="panel"
+        class="panel">
+
+        <div class="row">
+
+            <span>
+                الحالة
+            </span>
+
+            <b id="handState">
+                لا توجد يد
+            </b>
+
+        </div>
+
+
+        <div class="row">
+
+            <span>
+                الإشارة
+            </span>
+
+            <b id="gesture">
+                —
+            </b>
+
+        </div>
+
+
+        <div class="row">
+
+            <span>
+                الموقع
+            </span>
+
+            <b id="pos">
+                —
+            </b>
+
+        </div>
+
+    </div>
+
+
+    <div class="tip">
+
+        ✋ افتح كفك
+        &nbsp; • &nbsp;
+        ☝️ ارفع إصبع
+        &nbsp; • &nbsp;
+        👋 حرّك يدك
+
+    </div>
+
+</div>
+
+
+<!-- شاشة خطأ الكاميرا -->
+<div
+    id="error"
+    class="cameraError">
+
+    <div class="card">
+
+        <h2>
+            ما قدرنا نفتح الكاميرا
+        </h2>
+
+        <p id="errorText">
+
+            تأكد من إعطاء الموقع صلاحية الكاميرا.
+            على بعض المتصفحات يجب فتح الموقع عبر HTTPS.
+
+        </p>
+
+        <button id="retry">
+
+            إعادة المحاولة
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<!--
+    MediaPipe
+    مكتبة التعرف على اليد
+-->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+
+
+<script>
+
+/* =========================================
+   العناصر
+========================================= */
+
+const video =
+    document.getElementById("video");
+
+const canvas =
+    document.getElementById("canvas");
+
+const ctx =
+    canvas.getContext("2d");
+
+const start =
+    document.getElementById("start");
+
+const center =
+    document.getElementById("center");
+
+const statusEl =
+    document.getElementById("status");
+
+const dot =
+    document.getElementById("dot");
+
+const panel =
+    document.getElementById("panel");
+
+const handState =
+    document.getElementById("handState");
+
+const gestureEl =
+    document.getElementById("gesture");
+
+const posEl =
+    document.getElementById("pos");
+
+const error =
+    document.getElementById("error");
+
+const errorText =
+    document.getElementById("errorText");
+
+
+/* =========================================
+   المتغيرات
+========================================= */
+
+let stream = null;
+
+let hands = null;
+
+let running = false;
+
+let particles = [];
+
+let hand = {
+
+    x:.5,
+
+    y:.5,
+
+    found:false,
+
+    gesture:"—",
+
+    points:[]
+
+};
+
+let lastTime =
+    performance.now();
+
+
+/* =========================================
+   Canvas
+========================================= */
+
+function resize(){
+
+    canvas.width =
+        innerWidth *
+        devicePixelRatio;
+
+    canvas.height =
+        innerHeight *
+        devicePixelRatio;
+
+    canvas.style.width =
+        innerWidth + "px";
+
+    canvas.style.height =
+        innerHeight + "px";
+
+    ctx.setTransform(
+        devicePixelRatio,
+        0,
+        0,
+        devicePixelRatio,
+        0,
+        0
+    );
+}
+
+addEventListener(
+    "resize",
+    resize
+);
+
+resize();
+
+
+/* =========================================
+   الجسيمات
+========================================= */
+
+function makeParticles(){
+
+    particles = [];
+
+    for(
+        let i=0;
+        i<85;
+        i++
+    ){
+
+        particles.push({
+
+            x:
+                Math.random() *
+                innerWidth,
+
+            y:
+                Math.random() *
+                innerHeight,
+
+            vx:
+                (Math.random()-.5)
+                * .25,
+
+            vy:
+                (Math.random()-.5)
+                * .25,
+
+            r:
+                Math.random()*2.2+.5,
+
+            a:
+                Math.random()*.65+.15
+
+        });
+
+    }
+
+}
+
+makeParticles();
+
+
+/* =========================================
+   حساب المسافة
+========================================= */
+
+function distance(a,b){
+
+    return Math.hypot(
+        a.x-b.x,
+        a.y-b.y
+    );
+
+}
+
+
+/* =========================================
+   معرفة حركة اليد
+========================================= */
+
+function classify(lm){
+
+    const tips = [
+        8,
+        12,
+        16,
+        20
+    ];
+
+    const pips = [
+        6,
+        10,
+        14,
+        18
+    ];
+
+    let extended = 0;
+
+
+    for(
+        let i=0;
+        i<4;
+        i++
+    ){
+
+        if(
+            lm[tips[i]].y <
+            lm[pips[i]].y
+        ){
+
+            extended++;
+
+        }
+
+    }
+
+
+    /* 🤏 */
+    const pinch =
+        distance(
+            lm[4],
+            lm[8]
+        ) < .075;
+
+
+    if(pinch){
+
+        return "🤏 تكبير";
+
+    }
+
+
+    /* 🖐️ */
+    if(extended === 4){
+
+        return "🖐️ كف مفتوح";
+
+    }
+
+
+    /* ☝️ */
+    if(
+        extended === 1 &&
+        lm[8].y <
+        lm[6].y
+    ){
+
+        return "☝️ إصبع مرفوع";
+
+    }
+
+
+    /* ✌️ */
+    if(
+        extended === 2 &&
+        lm[8].y <
+        lm[6].y &&
+        lm[12].y <
+        lm[10].y
+    ){
+
+        return "✌️ إشارة سلام";
+
+    }
+
+
+    /* ✊ */
+    if(extended === 0){
+
+        return "✊ قبضة";
+
+    }
+
+
+    return "✋ حركة يد";
+
+}
+
+
+/* =========================================
+   نتائج التعرف
+========================================= */
+
+function onResults(results){
+
+    ctx.clearRect(
+        0,
+        0,
+        innerWidth,
+        innerHeight
+    );
+
+
+    if(
+        results.multiHandLandmarks &&
+        results.multiHandLandmarks.length
+    ){
+
+        const lm =
+            results.multiHandLandmarks[0];
+
+
+        /*
+            نعكس X حتى تتطابق
+            اليد مع الكاميرا
+        */
+
+        hand.x =
+            1 - lm[9].x;
+
+        hand.y =
+            lm[9].y;
+
+        hand.found =
+            true;
+
+        hand.gesture =
+            classify(lm);
+
+        hand.points =
+            lm;
+
+
+        statusEl.textContent =
+            "تم اكتشاف اليد";
+
+        dot.classList.add("ok");
+
+
+        handState.textContent =
+            "موجودة ✋";
+
+        gestureEl.textContent =
+            hand.gesture;
+
+
+        posEl.textContent =
+            Math.round(
+                hand.x*100
+            ) +
+            "% ، " +
+            Math.round(
+                hand.y*100
+            ) +
+            "%";
+
+
+        panel.classList.add(
+            "show"
+        );
+
+
+        /*
+            نقاط اليد
+        */
+
+        for(
+            const p of lm
+        ){
+
+            const x =
+                (1-p.x) *
+                innerWidth;
+
+            const y =
+                p.y *
+                innerHeight;
+
+
+            ctx.beginPath();
+
+            ctx.arc(
+                x,
+                y,
+                3,
+                0,
+                Math.PI*2
+            );
+
+            ctx.fillStyle =
+                "rgba(255,255,255,.75)";
+
+            ctx.fill();
+
+        }
+
+
+        /*
+            خطوط اليد
+        */
+
+        const connections = [
+
+            [0,1],
+            [1,2],
+            [2,3],
+            [3,4],
+
+            [0,5],
+            [5,6],
+            [6,7],
+            [7,8],
+
+            [5,9],
+            [9,10],
+            [10,11],
+            [11,12],
+
+            [9,13],
+            [13,14],
+            [14,15],
+            [15,16],
+
+            [13,17],
+            [17,18],
+            [18,19],
+            [19,20],
+
+            [0,17]
+
+        ];
+
+
+        for(
+            const c of connections
+        ){
+
+            const a =
+                lm[c[0]];
+
+            const b =
+                lm[c[1]];
+
+
+            ctx.beginPath();
+
+            ctx.moveTo(
+                (1-a.x) *
+                innerWidth,
+
+                a.y *
+                innerHeight
+            );
+
+            ctx.lineTo(
+                (1-b.x) *
+                innerWidth,
+
+                b.y *
+                innerHeight
+            );
+
+
+            ctx.strokeStyle =
+                "rgba(255,255,255,.20)";
+
+            ctx.lineWidth = 1.2;
+
+            ctx.stroke();
+
+        }
+
+    }
+
+    else{
+
+        hand.found =
+            false;
+
+
+        statusEl.textContent =
+            "وجّه يدك للكاميرا";
+
+        dot.classList.remove(
+            "ok"
+        );
+
+
+        handState.textContent =
+            "لا توجد يد";
+
+        gestureEl.textContent =
+            "—";
+
+        posEl.textContent =
+            "—";
+
+        panel.classList.remove(
+            "show"
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   Animation
+========================================= */
+
+function animate(now){
+
+    const dt =
+        Math.min(
+            32,
+            now-lastTime
+        );
+
+    lastTime = now;
+
+
+    ctx.clearRect(
+        0,
+        0,
+        innerWidth,
+        innerHeight
+    );
+
+
+    const targetX =
+        hand.found
+        ? hand.x*innerWidth
+        : innerWidth/2;
+
+
+    const targetY =
+        hand.found
+        ? hand.y*innerHeight
+        : innerHeight/2;
+
+
+    const power =
+        hand.found
+        ?
+        (
+            hand.gesture.includes(
+                "كف"
+            )
+            ? 1.7
+            : 1
+        )
+        :
+        .25;
+
+
+    /*
+        تحريك الجسيمات
+        باتجاه اليد
+    */
+
+    for(
+        const p of particles
+    ){
+
+        const dx =
+            targetX-p.x;
+
+        const dy =
+            targetY-p.y;
+
+        const d =
+            Math.hypot(
+                dx,
+                dy
+            ) || 1;
+
+
+        if(
+            hand.found &&
+            d < 330
+        ){
+
+            const force =
+                (330-d)/330
+                *.9
+                *power;
+
+
+            p.vx +=
+                dx/d *
+                force;
+
+
+            p.vy +=
+                dy/d *
+                force;
+
+        }
+
+
+        p.vx *= .985;
+
+        p.vy *= .985;
+
+
+        p.x +=
+            p.vx *
+            dt *
+            .06;
+
+        p.y +=
+            p.vy *
+            dt *
+            .06;
+
+
+        if(
+            p.x < -20
+        )
+            p.x =
+                innerWidth+20;
+
+
+        if(
+            p.x >
+            innerWidth+20
+        )
+            p.x=-20;
+
+
+        if(
+            p.y < -20
+        )
+            p.y =
+                innerHeight+20;
+
+
+        if(
+            p.y >
+            innerHeight+20
+        )
+            p.y=-20;
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+            p.x,
+            p.y,
+            p.r,
+            0,
+            Math.PI*2
+        );
+
+
+        ctx.fillStyle =
+            `rgba(
+                255,
+                255,
+                255,
+                ${p.a}
+            )`;
+
+        ctx.fill();
+
+    }
+
+
+    /*
+        الهالة حول اليد
+    */
+
+    if(hand.found){
+
+        const pulse =
+            12 +
+            Math.sin(
+                now*.006
+            )*4;
+
+
+        const g =
+            ctx.createRadialGradient(
+                targetX,
+                targetY,
+                0,
+                targetX,
+                targetY,
+                85+pulse
+            );
+
+
+        g.addColorStop(
+            0,
+            "rgba(255,255,255,.22)"
+        );
+
+        g.addColorStop(
+            .25,
+            "rgba(120,190,255,.12)"
+        );
+
+        g.addColorStop(
+            1,
+            "rgba(120,190,255,0)"
+        );
+
+
+        ctx.fillStyle = g;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            targetX,
+            targetY,
+            90+pulse,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+
+
+        /*
+            🤏 تأثير التكبير
+        */
+
+        if(
+            hand.gesture.includes(
+                "تكبير"
+            )
+        ){
+
+            ctx.beginPath();
+
+            ctx.arc(
+                targetX,
+                targetY,
+                30 +
+                Math.sin(
+                    now*.01
+                )*8,
+                0,
+                Math.PI*2
+            );
+
+
+            ctx.strokeStyle =
+                "rgba(255,255,255,.75)";
+
+            ctx.lineWidth = 2;
+
+            ctx.stroke();
+
+        }
+
+    }
+
+
+    requestAnimationFrame(
+        animate
+    );
+
+}
+
+requestAnimationFrame(
+    animate
+);
+
+
+/* =========================================
+   تشغيل الكاميرا الخلفية
+========================================= */
+
+async function startCamera(){
+
+    error.classList.remove(
+        "show"
+    );
+
+
+    try{
+
+        if(
+            !navigator.mediaDevices ||
+            !navigator.mediaDevices.getUserMedia
+        ){
+
+            throw new Error(
+                "المتصفح لا يدعم الكاميرا"
+            );
+
+        }
+
+
+        /*
+            إذا كانت هناك كاميرا
+            سابقة نوقفها
+        */
+
+        if(stream){
+
+            stream
+                .getTracks()
+                .forEach(
+                    track =>
+                    track.stop()
+                );
+
+        }
+
+
+        /*
+            الكاميرا الخلفية
+        */
+
+        stream =
+            await navigator
+            .mediaDevices
+            .getUserMedia({
+
+                video:{
+
+                    facingMode:{
+                        ideal:"environment"
+                    },
+
+                    width:{
+                        ideal:1280
+                    },
+
+                    height:{
+                        ideal:720
+                    }
+
+                },
+
+                audio:false
+
+            });
+
+
+        video.srcObject =
+            stream;
+
+
+        await video.play();
+
+
+        center.classList.add(
+            "hidden"
+        );
+
+
+        start.style.display =
+            "none";
+
+
+        running = true;
+
+
+        statusEl.textContent =
+            "جاري تشغيل الكاميرا";
+
+
+        dot.classList.remove(
+            "ok"
+        );
+
+
+        /*
+            تشغيل MediaPipe
+        */
+
+        hands =
+            new Hands({
+
+                locateFile:
+                    file =>
+                    `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+
+            });
+
+
+        hands.setOptions({
+
+            maxNumHands:1,
+
+            modelComplexity:1,
+
+            minDetectionConfidence:.55,
+
+            minTrackingConfidence:.55
+
+        });
+
+
+        hands.onResults(
+            onResults
+        );
+
+
+        /*
+            إرسال صور الكاميرا
+            إلى نظام التعرف
+        */
+
+        const process =
+            async () => {
+
+                if(!running)
+                    return;
+
+
+                if(
+                    video.readyState >= 2
+                ){
+
+                    await hands.send({
+                        image:video
+                    });
+
+                }
+
+
+                requestAnimationFrame(
+                    process
+                );
+
+            };
+
+
+        process();
+
+    }
+
+    catch(e){
+
+        console.error(e);
+
+
+        errorText.textContent =
+            "تأكد من السماح للموقع باستخدام الكاميرا، وافتح الموقع عبر HTTPS. سيحاول الموقع استخدام الكاميرا الخلفية تلقائياً.";
+
+
+        error.classList.add(
+            "show"
+        );
+
+
+        statusEl.textContent =
+            "تعذر تشغيل الكاميرا";
+
+    }
+
+}
+
+
+/* =========================================
+   الأزرار
+========================================= */
+
+start.addEventListener(
+    "click",
+    startCamera
+);
+
+
+document
+    .getElementById("retry")
+    .addEventListener(
+        "click",
+        startCamera
+    );
+
+</script>
+
+</body>
+</html>
