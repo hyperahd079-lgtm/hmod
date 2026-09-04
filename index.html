@@ -38,10 +38,7 @@ body{
     height:100%;
     object-fit:cover;
     z-index:0;
-
-    /* مهم: بدون انعكاس */
     transform:none;
-
     background:#03050b;
 }
 
@@ -458,33 +455,18 @@ h1{
     <div id="panel" class="panel">
 
         <div class="row">
-
             <span>الحالة</span>
-
-            <b id="handState">
-                لا توجد يد
-            </b>
-
+            <b id="handState">لا توجد يد</b>
         </div>
 
         <div class="row">
-
             <span>الحركة</span>
-
-            <b id="gesture">
-                —
-            </b>
-
+            <b id="gesture">—</b>
         </div>
 
         <div class="row">
-
             <span>الموقع</span>
-
-            <b id="pos">
-                —
-            </b>
-
+            <b id="pos">—</b>
         </div>
 
     </div>
@@ -492,13 +474,13 @@ h1{
 
     <div class="tip">
 
-        🖐️ كف
+        🖐️ نار
         &nbsp; • &nbsp;
-        ✌️ سلام
+        ✌️ طاقة
         &nbsp; • &nbsp;
-        🫶 قلب
+        ☝️ رسم
         &nbsp; • &nbsp;
-        ☝️ إصبع
+        ✊ إخفاء
 
     </div>
 
@@ -597,6 +579,12 @@ let hearts = [];
 
 let trails = [];
 
+let flames = [];
+
+let energy = [];
+
+let drawing = [];
+
 let previousHand = null;
 
 let lastGesture = "";
@@ -674,7 +662,7 @@ function screenPoint(p){
 
 
 /* =========================================================
-   الجسيمات
+   الجسيمات الخلفية
 ========================================================= */
 
 function createParticles(){
@@ -695,9 +683,7 @@ function createParticles(){
 
             r:Math.random()*2+0.4,
 
-            a:Math.random()*.65+.1,
-
-            life:1
+            a:Math.random()*.65+.1
 
         });
 
@@ -767,30 +753,63 @@ function burst(
 
 
 /* =========================================================
-   قلب
+   نار حول اليد
 ========================================================= */
 
-function spawnHeart(
-    x,
-    y,
-    size=45
-){
+function spawnFlame(x,y){
 
-    hearts.push({
+    flames.push({
 
-        x,
-        y,
+        x:
+            x + (Math.random()-.5)*65,
 
-        size,
+        y:
+            y + (Math.random()-.5)*65,
+
+        vx:
+            (Math.random()-.5)*1.4,
+
+        vy:
+            -Math.random()*3.5-1,
+
+        size:
+            Math.random()*15+7,
 
         life:1,
 
-        vy:-.5,
+        decay:
+            Math.random()*.025+.018,
 
         rotation:
-            (Math.random()-.5)*.4
+            Math.random()*Math.PI*2
 
     });
+
+}
+
+
+/* =========================================================
+   طاقة
+========================================================= */
+
+function spawnEnergy(x,y){
+
+    energy.push({
+
+        x,
+
+        y,
+
+        vx:(Math.random()-.5)*4,
+
+        vy:(Math.random()-.5)*4,
+
+        size:Math.random()*3+1,
+
+        life:1
+
+    });
+
 }
 
 
@@ -841,7 +860,7 @@ function classify(lm){
         fingerInfo(lm);
 
 
-    /* 🫶 قلب */
+    /* قلب */
 
     const twoFingerHeart =
 
@@ -862,7 +881,7 @@ function classify(lm){
     }
 
 
-    /* 🤏 ضم */
+    /* ضم */
 
     if(f.pinch){
 
@@ -871,7 +890,7 @@ function classify(lm){
     }
 
 
-    /* 🖐️ كف مفتوح */
+    /* كف مفتوح */
 
     if(
         f.index &&
@@ -885,7 +904,7 @@ function classify(lm){
     }
 
 
-    /* ✌️ سلام */
+    /* سلام */
 
     if(
         f.index &&
@@ -899,7 +918,7 @@ function classify(lm){
     }
 
 
-    /* ☝️ سبابة */
+    /* سبابة */
 
     if(
         f.index &&
@@ -913,7 +932,7 @@ function classify(lm){
     }
 
 
-    /* 👍 إعجاب */
+    /* إعجاب */
 
     const thumbUp =
 
@@ -933,7 +952,7 @@ function classify(lm){
     }
 
 
-    /* ✊ قبضة */
+    /* قبضة */
 
     if(
         !f.index &&
@@ -948,6 +967,7 @@ function classify(lm){
 
 
     return "👋 حركة";
+
 }
 
 
@@ -967,31 +987,35 @@ function gestureEffect(
         return;
 
     gestureTimer =
-        now + 260;
+        now + 180;
 
 
-    const center =
+    const c =
         screenPoint(lm[9]);
 
 
-    if(gesture.includes("كف")){
+    /* كف = نار */
+
+    if(
+        gesture.includes("كف")
+    ){
 
         burst(
-            center.x,
-            center.y,
-            75,
-            7
+            c.x,
+            c.y,
+            35,
+            4
         );
 
         rings.push({
 
-            x:center.x,
+            x:c.x,
 
-            y:center.y,
+            y:c.y,
 
-            r:10,
+            r:20,
 
-            max:220,
+            max:180,
 
             life:1
 
@@ -1000,140 +1024,72 @@ function gestureEffect(
     }
 
 
-    else if(
-        gesture.includes("قلب")
-    ){
-
-        spawnHeart(
-            center.x,
-            center.y,
-            65
-        );
-
-        for(let i=0;i<8;i++){
-
-            spawnHeart(
-
-                center.x+
-                (Math.random()-.5)*100,
-
-                center.y+
-                (Math.random()-.5)*100,
-
-                18+
-                Math.random()*18
-
-            );
-
-        }
-
-    }
-
+    /* سلام = طاقة */
 
     else if(
         gesture.includes("سلام")
     ){
 
         burst(
-
             screenPoint(lm[8]).x,
-
             screenPoint(lm[8]).y,
-
-            22,
-
+            18,
             4
-
         );
 
         burst(
-
             screenPoint(lm[12]).x,
-
             screenPoint(lm[12]).y,
-
-            22,
-
+            18,
             4
-
         );
 
     }
 
+
+    /* سبابة = بداية الرسم */
 
     else if(
         gesture.includes("سبابة")
     ){
 
         burst(
-
             screenPoint(lm[8]).x,
-
             screenPoint(lm[8]).y,
-
-            16,
-
+            12,
             3
-
         );
 
     }
 
 
-    else if(
-        gesture.includes("ضم")
-    ){
-
-        rings.push({
-
-            x:center.x,
-
-            y:center.y,
-
-            r:12,
-
-            max:150,
-
-            life:1
-
-        });
-
-    }
-
+    /* قبضة = إخفاء */
 
     else if(
         gesture.includes("قبضة")
     ){
 
         burst(
-
-            center.x,
-
-            center.y,
-
-            50,
-
-            5
-
+            c.x,
+            c.y,
+            25,
+            3
         );
 
     }
 
+
+    /* إعجاب */
 
     else if(
         gesture.includes("إعجاب")
     ){
 
         burst(
-
             screenPoint(lm[4]).x,
-
             screenPoint(lm[4]).y,
-
             28,
-
             4
-
         );
 
     }
@@ -1142,159 +1098,7 @@ function gestureEffect(
 
 
 /* =========================================================
-   رسم القلب
-========================================================= */
-
-function drawHeart(
-    x,
-    y,
-    size,
-    rotation,
-    alpha
-){
-
-    ctx.save();
-
-    ctx.translate(
-        x,
-        y
-    );
-
-    ctx.rotate(
-        rotation
-    );
-
-    ctx.scale(
-        size/50,
-        size/50
-    );
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        0,
-        18
-    );
-
-    ctx.bezierCurveTo(
-        -42,-8,
-        -24,-32,
-        0,-15
-    );
-
-    ctx.bezierCurveTo(
-        24,-32,
-        42,-8,
-        0,18
-    );
-
-    ctx.closePath();
-
-    ctx.fillStyle =
-        `rgba(255,255,255,${alpha})`;
-
-    ctx.shadowBlur=25;
-
-    ctx.shadowColor =
-        "rgba(255,255,255,.9)";
-
-    ctx.fill();
-
-    ctx.restore();
-}
-
-
-/* =========================================================
-   رسم الشعاع من السبابة
-========================================================= */
-
-function drawFingerBeam(lm){
-
-    const tip =
-        screenPoint(lm[8]);
-
-    const joint =
-        screenPoint(lm[6]);
-
-    const dx =
-        tip.x-joint.x;
-
-    const dy =
-        tip.y-joint.y;
-
-    const len =
-        Math.hypot(dx,dy) || 1;
-
-    const nx =
-        dx/len;
-
-    const ny =
-        dy/len;
-
-    const endX =
-        tip.x + nx*220;
-
-    const endY =
-        tip.y + ny*220;
-
-    const gradient =
-        ctx.createLinearGradient(
-
-            tip.x,
-
-            tip.y,
-
-            endX,
-
-            endY
-
-        );
-
-    gradient.addColorStop(
-        0,
-        "rgba(255,255,255,.85)"
-    );
-
-    gradient.addColorStop(
-        .35,
-        "rgba(150,210,255,.35)"
-    );
-
-    gradient.addColorStop(
-        1,
-        "rgba(150,210,255,0)"
-    );
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        tip.x,
-        tip.y
-    );
-
-    ctx.lineTo(
-        endX,
-        endY
-    );
-
-    ctx.strokeStyle =
-        gradient;
-
-    ctx.lineWidth=2;
-
-    ctx.shadowBlur=18;
-
-    ctx.shadowColor =
-        "rgba(160,220,255,.8)";
-
-    ctx.stroke();
-
-    ctx.shadowBlur=0;
-}
-
-
-/* =========================================================
-   رسم يد + خطوط
+   رسم اليد
 ========================================================= */
 
 function drawHand(lm){
@@ -1315,8 +1119,6 @@ function drawHand(lm){
 
     ];
 
-
-    /* الخطوط */
 
     for(
         const c of connections
@@ -1354,8 +1156,6 @@ function drawHand(lm){
 
     }
 
-
-    /* النقاط */
 
     for(
         let i=0;
@@ -1405,6 +1205,157 @@ function drawHand(lm){
     }
 
     ctx.shadowBlur=0;
+
+}
+
+
+/* =========================================================
+   رسم شعاع الإصبع
+========================================================= */
+
+function drawFingerBeam(lm){
+
+    const tip =
+        screenPoint(lm[8]);
+
+    const joint =
+        screenPoint(lm[6]);
+
+
+    const dx =
+        tip.x-joint.x;
+
+    const dy =
+        tip.y-joint.y;
+
+    const len =
+        Math.hypot(dx,dy)||1;
+
+    const nx =
+        dx/len;
+
+    const ny =
+        dy/len;
+
+
+    const endX =
+        tip.x + nx*220;
+
+    const endY =
+        tip.y + ny*220;
+
+
+    const gradient =
+        ctx.createLinearGradient(
+
+            tip.x,
+            tip.y,
+            endX,
+            endY
+
+        );
+
+
+    gradient.addColorStop(
+        0,
+        "rgba(255,255,255,.95)"
+    );
+
+    gradient.addColorStop(
+        .25,
+        "rgba(140,220,255,.65)"
+    );
+
+    gradient.addColorStop(
+        1,
+        "rgba(140,220,255,0)"
+    );
+
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        tip.x,
+        tip.y
+    );
+
+    ctx.lineTo(
+        endX,
+        endY
+    );
+
+    ctx.strokeStyle =
+        gradient;
+
+    ctx.lineWidth=2;
+
+    ctx.shadowBlur=22;
+
+    ctx.shadowColor =
+        "rgba(120,220,255,.9)";
+
+    ctx.stroke();
+
+    ctx.shadowBlur=0;
+
+}
+
+
+/* =========================================================
+   الرسم بالسبابة
+========================================================= */
+
+function drawDrawing(){
+
+    if(drawing.length < 2)
+        return;
+
+
+    ctx.save();
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        drawing[0].x,
+        drawing[0].y
+    );
+
+
+    for(
+        let i=1;
+        i<drawing.length;
+        i++
+    ){
+
+        const p =
+            drawing[i];
+
+        ctx.lineTo(
+            p.x,
+            p.y
+        );
+
+    }
+
+
+    ctx.strokeStyle =
+        "rgba(130,220,255,.9)";
+
+    ctx.lineWidth=4;
+
+    ctx.lineCap="round";
+
+    ctx.lineJoin="round";
+
+    ctx.shadowBlur=20;
+
+    ctx.shadowColor =
+        "rgba(100,220,255,.9)";
+
+    ctx.stroke();
+
+    ctx.restore();
+
 }
 
 
@@ -1455,6 +1406,7 @@ function onResults(results){
         previousHand=null;
 
         return;
+
     }
 
 
@@ -1472,6 +1424,7 @@ function onResults(results){
 
     hand.points=lm;
 
+
     hand.gesture =
         classify(lm);
 
@@ -1484,6 +1437,7 @@ function onResults(results){
 
     handState.textContent =
         "موجودة ✋";
+
 
     gestureEl.textContent =
         hand.gesture;
@@ -1503,7 +1457,7 @@ function onResults(results){
     panel.classList.add("show");
 
 
-    /* تأثير عند تغيير الحركة */
+    /* تأثير عند تغير الحركة */
 
     if(
         hand.gesture !== lastGesture
@@ -1520,12 +1474,119 @@ function onResults(results){
     }
 
 
+    /* =========================================
+       النار أثناء الكف المفتوح
+    ========================================= */
+
+    if(
+        hand.gesture.includes("كف")
+    ){
+
+        const c =
+            screenPoint(lm[9]);
+
+        for(let i=0;i<3;i++){
+
+            spawnFlame(
+                c.x,
+                c.y
+            );
+
+        }
+
+    }
+
+
+    /* =========================================
+       الطاقة أثناء السلام
+    ========================================= */
+
+    if(
+        hand.gesture.includes("سلام")
+    ){
+
+        const p1 =
+            screenPoint(lm[8]);
+
+        const p2 =
+            screenPoint(lm[12]);
+
+
+        spawnEnergy(
+            p1.x,
+            p1.y
+        );
+
+        spawnEnergy(
+            p2.x,
+            p2.y
+        );
+
+    }
+
+
+    /* =========================================
+       الرسم أثناء السبابة
+    ========================================= */
+
+    if(
+        hand.gesture.includes("سبابة")
+    ){
+
+        const tip =
+            screenPoint(lm[8]);
+
+
+        if(
+            !previousHand ||
+            distance(
+                tip,
+                previousHand
+            ) > 2
+        ){
+
+            drawing.push({
+
+                x:tip.x,
+
+                y:tip.y
+
+            });
+
+        }
+
+
+        /*
+         * حتى لا يصبح الرسم لا نهائي
+         */
+
+        if(drawing.length > 700){
+
+            drawing.shift();
+
+        }
+
+    }
+
+
+    /* إذا مو سبابة لا نضيف نقاط */
+
+    else{
+
+        /*
+         * نخلي الرسم يبقى على الشاشة
+         * ولا ينمسح بمجرد تغيير الحركة
+         */
+
+    }
+
+
     /* رسم اليد */
 
     drawHand(lm);
 
 
-    /* شعاع السبابة */
+    /* شعاع الإصبع */
 
     if(
         hand.gesture.includes("سبابة")
@@ -1536,12 +1597,11 @@ function onResults(results){
     }
 
 
-    /* حركة اليد */
+    /* =========================================
+       حركة اليد
+    ========================================= */
 
     if(previousHand){
-
-        const old =
-            previousHand;
 
         const current =
             screenPoint(lm[9]);
@@ -1549,9 +1609,9 @@ function onResults(results){
         const movement =
             Math.hypot(
 
-                current.x-old.x,
+                current.x-previousHand.x,
 
-                current.y-old.y
+                current.y-previousHand.y
 
             );
 
@@ -1578,15 +1638,10 @@ function onResults(results){
             if(movement > 14){
 
                 burst(
-
                     current.x,
-
                     current.y,
-
                     4,
-
                     2.5
-
                 );
 
             }
@@ -1598,6 +1653,7 @@ function onResults(results){
 
     previousHand =
         screenPoint(lm[9]);
+
 }
 
 
@@ -1617,39 +1673,35 @@ function animate(now){
 
 
     ctx.clearRect(
-
         0,
-
         0,
-
         innerWidth,
-
         innerHeight
-
     );
 
 
+    /* =========================================
+       الرسم
+    ========================================= */
+
+    drawDrawing();
+
+
     const targetX =
-
         hand.found
-
         ? hand.x*innerWidth
-
         : innerWidth/2;
 
 
     const targetY =
-
         hand.found
-
         ? hand.y*innerHeight
-
         : innerHeight/2;
 
 
-    /* =====================
+    /* =========================================
        الجسيمات الخلفية
-    ===================== */
+    ========================================= */
 
     for(
         const p of particles
@@ -1710,17 +1762,11 @@ function animate(now){
         ctx.beginPath();
 
         ctx.arc(
-
             p.x,
-
             p.y,
-
             p.r,
-
             0,
-
             Math.PI*2
-
         );
 
         ctx.fillStyle =
@@ -1731,9 +1777,9 @@ function animate(now){
     }
 
 
-    /* =====================
+    /* =========================================
        هالة اليد
-    ===================== */
+    ========================================= */
 
     if(hand.found){
 
@@ -1746,42 +1792,29 @@ function animate(now){
             ctx.createRadialGradient(
 
                 targetX,
-
                 targetY,
-
                 0,
 
                 targetX,
-
                 targetY,
-
                 pulse
 
             );
 
 
         g.addColorStop(
-
             0,
-
             "rgba(255,255,255,.18)"
-
         );
 
         g.addColorStop(
-
             .3,
-
             "rgba(150,210,255,.10)"
-
         );
 
         g.addColorStop(
-
             1,
-
             "rgba(150,210,255,0)"
-
         );
 
 
@@ -1790,17 +1823,11 @@ function animate(now){
         ctx.beginPath();
 
         ctx.arc(
-
             targetX,
-
             targetY,
-
             pulse,
-
             0,
-
             Math.PI*2
-
         );
 
         ctx.fill();
@@ -1808,9 +1835,224 @@ function animate(now){
     }
 
 
-    /* =====================
+    /* =========================================
+       النار
+    ========================================= */
+
+    for(
+        let i=flames.length-1;
+        i>=0;
+        i--
+    ){
+
+        const f =
+            flames[i];
+
+
+        f.x +=
+            f.vx*dt*.06;
+
+        f.y +=
+            f.vy*dt*.06;
+
+
+        f.vy +=
+            .025;
+
+
+        f.life -=
+            f.decay*dt;
+
+
+        f.size *=
+            .985;
+
+
+        ctx.save();
+
+        ctx.translate(
+            f.x,
+            f.y
+        );
+
+        ctx.rotate(
+            f.rotation
+        );
+
+
+        /*
+         * شكل لهب ناعم
+         */
+
+        const flame =
+            ctx.createRadialGradient(
+
+                0,
+                0,
+                0,
+
+                0,
+                0,
+                f.size
+
+            );
+
+
+        flame.addColorStop(
+            0,
+            `rgba(255,255,255,${Math.max(0,f.life)})`
+        );
+
+        flame.addColorStop(
+            .22,
+            `rgba(255,210,90,${Math.max(0,f.life*.9)})`
+        );
+
+        flame.addColorStop(
+            .55,
+            `rgba(255,110,20,${Math.max(0,f.life*.65)})`
+        );
+
+        flame.addColorStop(
+            1,
+            "rgba(255,40,0,0)"
+        );
+
+
+        ctx.fillStyle =
+            flame;
+
+        ctx.shadowBlur=25;
+
+        ctx.shadowColor =
+            "rgba(255,100,20,.8)";
+
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            0,
+            -f.size*1.5
+        );
+
+        ctx.bezierCurveTo(
+
+            -f.size,
+            -f.size*.4,
+
+            -f.size*.8,
+            f.size*.8,
+
+            0,
+            f.size
+
+        );
+
+        ctx.bezierCurveTo(
+
+            f.size*.8,
+            f.size*.8,
+
+            f.size,
+            -f.size*.4,
+
+            0,
+            -f.size*1.5
+
+        );
+
+        ctx.closePath();
+
+        ctx.fill();
+
+        ctx.restore();
+
+
+        if(f.life<=0){
+
+            flames.splice(
+                i,
+                1
+            );
+
+        }
+
+    }
+
+
+    /* =========================================
+       طاقة السلام
+    ========================================= */
+
+    for(
+        let i=energy.length-1;
+        i>=0;
+        i--
+    ){
+
+        const e =
+            energy[i];
+
+
+        e.x +=
+            e.vx*dt*.05;
+
+        e.y +=
+            e.vy*dt*.05;
+
+
+        e.life -=
+            dt*.004;
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+
+            e.x,
+
+            e.y,
+
+            e.size,
+
+            0,
+
+            Math.PI*2
+
+        );
+
+
+        ctx.fillStyle =
+            `rgba(180,235,255,${Math.max(
+                0,
+                e.life
+            )})`;
+
+
+        ctx.shadowBlur=18;
+
+        ctx.shadowColor =
+            "rgba(120,220,255,.9)";
+
+
+        ctx.fill();
+
+
+        if(e.life<=0){
+
+            energy.splice(
+                i,
+                1
+            );
+
+        }
+
+    }
+
+
+    /* =========================================
        الانفجارات
-    ===================== */
+    ========================================= */
 
     for(
         let i=bursts.length-1;
@@ -1868,6 +2110,7 @@ function animate(now){
         ctx.shadowColor =
             "rgba(160,220,255,.9)";
 
+
         ctx.fill();
 
 
@@ -1883,9 +2126,9 @@ function animate(now){
     }
 
 
-    /* =====================
+    /* =========================================
        الدوائر
-    ===================== */
+    ========================================= */
 
     for(
         let i=rings.length-1;
@@ -1936,6 +2179,7 @@ function animate(now){
         ctx.shadowColor =
             "rgba(180,225,255,.8)";
 
+
         ctx.stroke();
 
 
@@ -1954,9 +2198,9 @@ function animate(now){
     }
 
 
-    /* =====================
+    /* =========================================
        المسارات
-    ===================== */
+    ========================================= */
 
     for(
         let i=trails.length-1;
@@ -2017,62 +2261,10 @@ function animate(now){
     }
 
 
-    /* =====================
-       القلوب
-    ===================== */
-
-    for(
-        let i=hearts.length-1;
-        i>=0;
-        i--
-    ){
-
-        const h =
-            hearts[i];
-
-
-        h.y +=
-            h.vy*dt;
-
-        h.life -=
-            dt*.0009;
-
-        h.size*=.999;
-
-
-        drawHeart(
-
-            h.x,
-
-            h.y,
-
-            h.size,
-
-            h.rotation,
-
-            Math.max(
-                0,
-                h.life
-            )
-
-        );
-
-
-        if(h.life<=0){
-
-            hearts.splice(
-                i,
-                1
-            );
-
-        }
-
-    }
-
-
     requestAnimationFrame(
         animate
     );
+
 }
 
 requestAnimationFrame(
@@ -2081,23 +2273,29 @@ requestAnimationFrame(
 
 
 /* =========================================================
-   تشغيل الكاميرا الخلفية — إصلاح إذن الكاميرا
+   تشغيل الكاميرا الخلفية فقط
 ========================================================= */
 
 async function startCamera(){
 
-    error.classList.remove("show");
+    error.classList.remove(
+        "show"
+    );
+
 
     try{
 
-        /* إيقاف أي تشغيل سابق */
+        /*
+         * إيقاف الكاميرا القديمة
+         */
 
         if(stream){
 
             stream
                 .getTracks()
                 .forEach(
-                    track => track.stop()
+                    track =>
+                    track.stop()
                 );
 
             stream=null;
@@ -2105,7 +2303,9 @@ async function startCamera(){
         }
 
 
-        /* التأكد من دعم الكاميرا */
+        /*
+         * التأكد من دعم الكاميرا
+         */
 
         if(
             !navigator.mediaDevices ||
@@ -2120,11 +2320,9 @@ async function startCamera(){
 
 
         /*
-         * طلب إذن الكاميرا مباشرة.
+         * الكاميرا الخلفية
          *
-         * مهم:
-         * لا نستخدم permissions.query
-         * حتى يكون طلب النظام طبيعيًا.
+         * environment = الخلفية
          */
 
         const newStream =
@@ -2136,7 +2334,7 @@ async function startCamera(){
                     video:{
 
                         facingMode:{
-                            ideal:"environment"
+                            exact:"environment"
                         },
 
                         width:{
@@ -2163,13 +2361,13 @@ async function startCamera(){
             newStream;
 
 
-        /* ربط الكاميرا بالفيديو */
+        /*
+         * ربط الفيديو
+         */
 
         video.srcObject =
             stream;
 
-
-        /* بدون انعكاس */
 
         video.style.transform =
             "none";
@@ -2178,7 +2376,9 @@ async function startCamera(){
         await video.play();
 
 
-        /* إخفاء شاشة البداية */
+        /*
+         * إخفاء شاشة البداية
+         */
 
         center.classList.add(
             "hidden"
@@ -2192,17 +2392,12 @@ async function startCamera(){
 
 
         statusEl.textContent =
-            "جاري تشغيل الكاميرا";
+            "جاري تشغيل الكاميرا الخلفية";
 
 
-        dot.classList.remove(
-            "ok"
-        );
-
-
-        /* =================================================
-           MediaPipe
-        ================================================= */
+        /*
+         * MediaPipe Hands
+         */
 
         hands =
             new Hands({
@@ -2232,9 +2427,9 @@ async function startCamera(){
         );
 
 
-        /* =================================================
-           معالجة الفيديو
-        ================================================= */
+        /*
+         * معالجة الفيديو
+         */
 
         async function process(){
 
@@ -2289,10 +2484,25 @@ async function startCamera(){
 
 
         /*
-         * إذا المستخدم رفض الإذن
+         * إذا exact environment
+         * غير مدعوم على الجهاز
          */
 
         if(
+            e.name ===
+            "OverconstrainedError"
+        ){
+
+            errorText.innerHTML =
+
+                "ما قدرنا نختار الكاميرا الخلفية.<br><br>" +
+
+                "تأكد أن جهازك يحتوي على كاميرا خلفية ثم حاول مرة ثانية.";
+
+        }
+
+
+        else if(
             e.name ===
             "NotAllowedError"
         ){
@@ -2306,10 +2516,6 @@ async function startCamera(){
         }
 
 
-        /*
-         * إذا لا توجد كاميرا
-         */
-
         else if(
             e.name ===
             "NotFoundError"
@@ -2317,14 +2523,10 @@ async function startCamera(){
 
             errorText.textContent =
 
-                "ماكو كاميرا متاحة على هذا الجهاز.";
+                "ماكو كاميرا خلفية متاحة على هذا الجهاز.";
 
         }
 
-
-        /*
-         * الكاميرا مستخدمة من تطبيق آخر
-         */
 
         else if(
             e.name ===
@@ -2337,10 +2539,6 @@ async function startCamera(){
 
         }
 
-
-        /*
-         * مشكلة HTTPS أو أمان
-         */
 
         else if(
             e.name ===
@@ -2358,7 +2556,7 @@ async function startCamera(){
 
             errorText.textContent =
 
-                "ما قدرنا نفتح الكاميرا. تأكد من صلاحية الكاميرا وأن الموقع يعمل عبر HTTPS، ثم حاول مرة ثانية.";
+                "ما قدرنا نفتح الكاميرا الخلفية. تأكد من صلاحية الكاميرا وأن الموقع يعمل عبر HTTPS، ثم حاول مرة ثانية.";
 
         }
 
@@ -2386,22 +2584,16 @@ async function startCamera(){
 ========================================================= */
 
 start.addEventListener(
-
     "click",
-
     startCamera
-
 );
 
 
 document
     .getElementById("retry")
     .addEventListener(
-
         "click",
-
         startCamera
-
     );
 
 </script>
